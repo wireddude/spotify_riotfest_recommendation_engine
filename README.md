@@ -5,10 +5,14 @@ This tool helps you discover bands you might like from a festival lineup or any 
 ## How it Works
 
 1. Connects to your Spotify account to analyze your top tracks
-2. Creates a "taste profile" based on audio features of your favorite music
-3. Analyzes each band from your input list
-4. Ranks bands by similarity to your musical taste
+2. Creates a "taste profile" based on your most common music genres and artist popularity
+3. Analyzes each band from your input list for genre similarity
+4. Ranks bands by overall similarity to your musical taste
 5. Outputs recommendations and saves detailed results
+
+## Note on Spotify API Changes
+
+As of September 2023, Spotify has deprecated several API endpoints including Audio Features and Recommendations. This tool has been updated to use genre-based similarity and popularity comparisons instead of audio feature analysis.
 
 ## Setup
 
