@@ -32,16 +32,32 @@ As of September 2023, Spotify has deprecated several API endpoints including Aud
 ## Usage
 
 ```bash
-python spotify_recommendations.py bands.txt
+python spotify_recommendations.py bands.txt [time_range]
 ```
 
-Where `bands.txt` is a text file with one band name per line.
+Where:
+- `bands.txt` is a text file with one band name per line
+- `time_range` (optional) is one of:
+  - `short_term`: approximately the last 4 weeks (default)
+  - `medium_term`: approximately the last 6 months
+  - `long_term`: calculated from several years of data
+
+Example for long-term listening history:
+```bash
+python spotify_recommendations.py bands.txt long_term
+```
 
 ## Output
 
 The program will:
-- Display your musical taste profile
-- Show the top 10 recommended bands with similarity scores
+- Display your personal listening profile with:
+  - Your top artists
+  - Your most common genres with percentages
+  - Your average artist popularity score
+- Show the top 10 recommended bands with:
+  - Similarity scores
+  - Genre information and which genres match your taste
+  - Popularity metrics
 - Save complete results to a JSON file
 
 ## Requirements

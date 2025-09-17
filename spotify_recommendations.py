@@ -47,8 +47,15 @@ sp = spotipy.Spotify(auth_manager=spo_auth)
 # ------------------------------------------------------------------
 # 3️⃣ Build your "taste profile" based on genres and popularity
 # ------------------------------------------------------------------
-print("📥 Pulling your top tracks…")
-top_tracks = sp.current_user_top_tracks(limit=50, time_range="short_term")["items"]
+# Time range options: short_term (4 weeks), medium_term (6 months), long_term (years)
+time_range = "short_term"  # Change this to medium_term or long_term to analyze longer periods
+
+# Allow command line override of time range
+if len(sys.argv) > 2 and sys.argv[2] in ["short_term", "medium_term", "long_term"]:
+    time_range = sys.argv[2]
+
+print(f"📥 Pulling your top tracks (time range: {time_range})…")
+top_tracks = sp.current_user_top_tracks(limit=50, time_range=time_range)["items"]
 if not top_tracks:
     sys.exit("❌ No top tracks found. Add some music to Spotify first.")
 
@@ -58,25 +65,51 @@ top_artists_info = [sp.artist(artist_id) for artist_id in top_artists_ids[:20]] 
 
 # Extract genres and calculate average popularity
 all_genres = []
+artist_names = []
+artist_popularity = []
+
+# Collect artist names, genres and popularity
 for artist in top_artists_info:
     all_genres.extend(artist.get("genres", []))
+    artist_names.append(artist.get("name", "Unknown"))
+    artist_popularity.append(artist.get("popularity", 0))
 
 # Create user profile based on genre frequency and average popularity
 genre_counts = Counter(all_genres)
 total_genres = sum(genre_counts.values())
 user_genres = {genre: count/total_genres for genre, count in genre_counts.most_common(10)}
-user_popularity = np.mean([artist["popularity"] for artist in top_artists_info])
+user_popularity = np.mean(artist_popularity)
 
-print("\nYour top genres:")
+# Display your music taste profile
+print("\n🎧 YOUR LISTENING PROFILE 🎧")
+print("\n📊 Your top artists:")
+for i, artist in enumerate(artist_names[:10], 1):
+    print(f"  {i}. {artist}")
+
+print("\n🎸 Your top genres:")
 for genre, weight in user_genres.items():
-    print(f"  {genre:<20}: {weight:.3f}")
-print(f"\nYour average artist popularity: {user_popularity:.1f}/100")
+    print(f"  {genre:<20}: {weight:.3f} ({int(weight*100)}%)")
+print(f"\n⭐ Your average artist popularity: {user_popularity:.1f}/100")
+
+# Uncomment these lines if you want to visualize your genre distribution
+# (requires: pip install matplotlib)
+"""
+import matplotlib.pyplot as plt
+plt.figure(figsize=(10, 6))
+plt.bar(user_genres.keys(), user_genres.values())
+plt.xticks(rotation=45, ha='right')
+plt.title('Your Genre Preferences')
+plt.tight_layout()
+plt.savefig('my_genre_profile.png')
+print("\n📈 Genre visualization saved to 'my_genre_profile.png'")
+"""
 
 # ------------------------------------------------------------------
 # 4️⃣ Load candidate bands
 # ------------------------------------------------------------------
 if len(sys.argv) < 2:
-    sys.exit("Usage: python spotify_recommendations.py <bands.txt>")
+    sys.exit("Usage: python spotify_recommendations.py <bands.txt> [time_range]\n"
+             "  time_range options: short_term (4 weeks), medium_term (6 months), long_term (years)")
 
 bands_file = sys.argv[1]
 with open(bands_file, "r", encoding="utf-8") as f:
@@ -157,6 +190,12 @@ for i, band in enumerate(results[:10], 1):
     print(f"   Similarity: {band['similarity']:.2f}")
     print(f"   Genres: {', '.join(band['genres'][:3])}")
     print(f"   Popularity: {band['popularity']}/100")
+    
+    # Show genre match details
+    if band['genres']:
+        matching_genres = set(band['genres']).intersection(set(user_genres.keys()))
+        if matching_genres:
+            print(f"   Matching genres: {', '.join(matching_genres)}")
     print()
 
 # Save full results to JSON
