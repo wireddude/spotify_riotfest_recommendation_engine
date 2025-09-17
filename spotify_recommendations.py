@@ -38,8 +38,8 @@ if not all([CLIENT_ID, CLIENT_SECRET, REDIRECT_URI]):
 # 2️⃣ Authenticate (read your top tracks)
 # ------------------------------------------------------------------
 SCOPE = "user-top-read"
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=SCOPE))
-
+spo_auth = SpotifyOAuth(scope=SCOPE, client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=REDIRECT_URI)
+sp = spotipy.Spotify(auth_manager=spo_auth)
 # ------------------------------------------------------------------
 # 3️⃣ Build your “taste vector”
 # ------------------------------------------------------------------
